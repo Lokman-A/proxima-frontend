@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useProjectContext } from "../hooks/useProjectContext";
 
 const ProjectForm = () => {
   const [title, setTitle] = useState("");
@@ -9,11 +10,13 @@ const ProjectForm = () => {
   const [dev, setDev] = useState("");
   const [error, setError] = useState(null);
 
+  const { dispatch } = useProjectContext();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // data
-    const project = { title, tech, budget, duration, manager, dev };
+    const projectObj = { title, tech, budget, duration, manager, dev };
 
     // post req
     const res = await fetch("http://localhost:3000/api/projects", {
@@ -21,7 +24,7 @@ const ProjectForm = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(project),
+      body: JSON.stringify(projectObj),
     });
     const data = await res.json();
 
@@ -40,7 +43,7 @@ const ProjectForm = () => {
       setDev("");
       setError(null);
 
-      console.log("New project has been added to the db", data);
+      dispatch({ type: "CREATE_PROJECT", payload: data });
     }
   };
 
@@ -78,7 +81,7 @@ const ProjectForm = () => {
           value={tech}
           onChange={(e) => setTech(e.target.value)}
           type="text"
-          placeholder="e.g. node.js, react, redux etc."
+          placeholder="e.g. node.js, gsap, react, redux etc."
           id="tech"
           className="bg-transparent border border-slate-500 py-3 px-5 rounded-lg outline-none focus:border-sky-400 duration-300"
         />
@@ -129,7 +132,7 @@ const ProjectForm = () => {
           value={manager}
           onChange={(e) => setManager(e.target.value)}
           type="text"
-          placeholder="e.g. natasha"
+          placeholder="e.g. John Doe"
           id="manager"
           className="bg-transparent border border-slate-500 py-3 px-5 rounded-lg outline-none focus:border-sky-400 duration-300"
         />
@@ -159,7 +162,7 @@ const ProjectForm = () => {
         Add Project
       </button>
       {error && (
-        <p className="bg-rose-500/20 rounded-lg p-5 text-red-500 border border-red-500">
+        <p className="bg-rose-500/10 rounded-lg p-5 text-red-500 border border-red-500">
           {error}
         </p>
       )}
