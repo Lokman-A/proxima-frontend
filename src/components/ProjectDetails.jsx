@@ -1,7 +1,23 @@
 import { currencyFormatter } from "../utils/currencyFormatter";
+import { useProjectContext } from "../hooks/useProjectContext";
+import moment from "moment";
 
 /* eslint-disable react/prop-types */
 const ProjectDetails = ({ project }) => {
+  const { dispatch } = useProjectContext();
+
+  const handleDelete = async () => {
+    const res = await fetch(
+      `http://localhost:3000/api/projects/${project._id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    const json = await res.json();
+    if (res.ok) {
+      dispatch({ type: "DELETE_PROJECT", payload: json });
+    }
+  };
   return (
     <div className="project bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl flex flex-col gap-5 w-[30rem]">
       <div className="top">
@@ -15,10 +31,11 @@ const ProjectDetails = ({ project }) => {
         <div className="left flex flex-col">
           <span> Budget: {currencyFormatter(project.budget)} </span>
           <span>
-            Added on: {new Date(project.createdAt).toLocaleDateString()}
+            Added: {moment(project.createdAt).format("DD-MM-YYYY, h:mm:ss A")}
           </span>
           <span>
-            Last updated: {new Date(project.updatedAt).toLocaleDateString()}
+            Last Update:{" "}
+            {moment(project.updatedAt).format("DD-MM-YYYY, h:mm:ss A")}
           </span>
         </div>
         <div className="right flex flex-col ">
@@ -37,7 +54,10 @@ const ProjectDetails = ({ project }) => {
         <div className="update-btn bg-sky-500 text-sky-200 font-medium py-1 rounded px-3 shadow-md hover:bg-sky-200 hover:text-sky-900 duration-300 cursor-pointer ">
           Update
         </div>
-        <div className="delete-btn text-rose-500 border border-slate-500 py-1 px-3 rounded shadow-md hover:border-rose-500 hover:text-rose-50 duration-0 cursor-pointer">
+        <div
+          onClick={handleDelete}
+          className="delete-btn text-rose-500 border border-slate-500 py-1 px-3 rounded shadow-md hover:border-rose-500 hover:text-rose-50 duration-0 cursor-pointer"
+        >
           Delete
         </div>
       </div>
