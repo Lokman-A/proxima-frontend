@@ -39,9 +39,11 @@ const ProjectDetails = ({ project }) => {
           </span>
         </div>
         <div className="right flex flex-col ">
-          <span>Manage: {project.manager}</span>
           <span>
-            {" "}
+            {`${project.manager === 1 ? "Manager" : "Managers"}`}:{" "}
+            {project.manager}
+          </span>
+          <span>
             {`${project.dev === 1 ? "Developer" : "Developers"}`}: {project.dev}
           </span>
           <span>
