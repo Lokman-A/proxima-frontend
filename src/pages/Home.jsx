@@ -26,8 +26,12 @@ const Home = () => {
         </h2>
         <div className="project-wrapper flex gap-10 flex-wrap">
           {projects &&
-            projects.map((project) => (
-              <ProjectDetails key={project._id} project={project} />
+            // eslint-disable-next-line no-unused-vars
+            projects.map((project, index) => (
+              <ProjectDetails
+                key={`${project._id}-${index}`}
+                project={project}
+              />
             ))}
         </div>
       </div>

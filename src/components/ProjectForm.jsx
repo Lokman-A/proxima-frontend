@@ -1,13 +1,21 @@
 import { useState } from "react";
 import { useProjectContext } from "../hooks/useProjectContext";
 
-const ProjectForm = () => {
-  const [title, setTitle] = useState("");
-  const [tech, setTech] = useState("");
-  const [budget, setBudget] = useState("");
-  const [duration, setDuration] = useState("");
-  const [manager, setManager] = useState("");
-  const [dev, setDev] = useState("");
+// eslint-disable-next-line react/prop-types
+const ProjectForm = ({ project, setIsModalOpen, setIsOverlayOpen }) => {
+  // eslint-disable-next-line react/prop-types
+  const [title, setTitle] = useState(project ? project.title : "");
+  // eslint-disable-next-line react/prop-types
+  const [tech, setTech] = useState(project ? project.tech : "");
+  // eslint-disable-next-line react/prop-types
+  const [budget, setBudget] = useState(project ? project.budget : "");
+  // eslint-disable-next-line react/prop-types
+  const [duration, setDuration] = useState(project ? project.duration : "");
+  // eslint-disable-next-line react/prop-types
+  const [manager, setManager] = useState(project ? project.manager : "");
+  // eslint-disable-next-line react/prop-types
+  const [dev, setDev] = useState(project ? project.dev : "");
+
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
 
@@ -19,41 +27,77 @@ const ProjectForm = () => {
     // data
     const projectObj = { title, tech, budget, duration, manager, dev };
 
-    // post req
-    const res = await fetch("http://localhost:3000/api/projects", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(projectObj),
-    });
-    const data = await res.json();
+    // if there is a no project
+    if (!project) {
+      // post req
+      const res = await fetch("http://localhost:3000/api/projects", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(projectObj),
+      });
+      const data = await res.json();
 
-    // !res.ok, set error
-    if (!res.ok) {
-      setError(data.error);
-      setEmptyFields(data.emptyFields);
+      // !res.ok, set error
+      if (!res.ok) {
+        setError(data.error);
+        setEmptyFields(data.emptyFields);
+      }
+
+      // res.ok, reset
+      if (res.ok) {
+        setTitle("");
+        setTech("");
+        setBudget("");
+        setDuration("");
+        setManager("");
+        setDev("");
+        setError(null);
+        setEmptyFields([]);
+
+        dispatch({ type: "CREATE_PROJECT", payload: data });
+      }
+      return;
     }
+    // if there is project
+    if (project) {
+      // post req
+      const res = await fetch(
+        `http://localhost:3000/api/projects/${project._id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(projectObj),
+        }
+      );
+      const data = await res.json();
 
-    // res.ok, reset
-    if (res.ok) {
-      setTitle("");
-      setTech("");
-      setBudget("");
-      setDuration("");
-      setManager("");
-      setDev("");
-      setError(null);
-      setEmptyFields([]);
+      // !res.ok, set error
+      if (!res.ok) {
+        setError(data.error);
+        setEmptyFields(data.emptyFields);
+      }
 
-      dispatch({ type: "CREATE_PROJECT", payload: data });
+      // res.ok, reset
+      if (res.ok) {
+        setError(null);
+        setEmptyFields([]);
+
+        dispatch({ type: "UPDATE_PROJECT", payload: data });
+        setIsModalOpen(false);
+        setIsOverlayOpen(false);
+      }
+      return;
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="project-form flex flex-col gap-5">
       <h2 className="text-4xl font-medium text-sky-400 mb-10">
-        Add a New Project
+        {project ? "Update project" : " Add a New Project"}
       </h2>
 
       <div className="form-control flex flex-col gap-2">
@@ -184,7 +228,7 @@ const ProjectForm = () => {
         type="submit"
         className="bg-sky-400 text-slate-900 py-3 rounded-lg hover:bg-sky-50 duration-300"
       >
-        Add Project
+        {project ? "Confirm Update" : "Add Project"}
       </button>
       {error && (
         <p className="bg-rose-500/10 rounded-lg p-5 text-red-500 border border-red-500">

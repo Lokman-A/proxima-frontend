@@ -24,6 +24,19 @@ export const projectReducer = (state, action) => {
           (project) => project._id !== action.payload._id
         ),
       };
+    case "UPDATE_PROJECT":
+      // eslint-disable-next-line no-case-declarations
+      const [existing] = state.projects.filter(
+        (project) => project._id === action.payload._id
+      );
+
+      return {
+        ...state,
+        projects: [
+          action.payload,
+          ...state.projects.filter((project) => project._id !== existing._id),
+        ],
+      };
   }
 };
 

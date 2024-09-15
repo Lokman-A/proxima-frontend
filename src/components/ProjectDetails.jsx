@@ -1,9 +1,13 @@
 import { currencyFormatter } from "../utils/currencyFormatter";
 import { useProjectContext } from "../hooks/useProjectContext";
 import moment from "moment";
+import { useState } from "react";
+import ProjectForm from "./ProjectForm";
 
 /* eslint-disable react/prop-types */
 const ProjectDetails = ({ project }) => {
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { dispatch } = useProjectContext();
 
   const handleDelete = async () => {
@@ -17,6 +21,16 @@ const ProjectDetails = ({ project }) => {
     if (res.ok) {
       dispatch({ type: "DELETE_PROJECT", payload: json });
     }
+  };
+
+  const handleUpdate = () => {
+    setIsModalOpen(true);
+    setIsOverlayOpen(true);
+  };
+
+  const handleOverlay = () => {
+    setIsModalOpen(false);
+    setIsOverlayOpen(false);
   };
   return (
     <div className="project bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl flex flex-col gap-5 w-[30rem]">
@@ -52,16 +66,40 @@ const ProjectDetails = ({ project }) => {
           </span>
         </div>
       </div>
+
       <div className="bottom flex gap-2">
-        <div className="update-btn bg-sky-500 text-sky-200 font-medium py-1 rounded px-3 shadow-md hover:bg-sky-200 hover:text-sky-900 duration-300 cursor-pointer ">
+        <button
+          onClick={handleUpdate}
+          className={`update-btn bg-sky-500 text-sky-200 font-medium py-1 rounded px-3 shadow-md hover:bg-sky-200 hover:text-sky-900 duration-300 cursor-pointer `}
+        >
           Update
-        </div>
+        </button>
         <div
           onClick={handleDelete}
           className="delete-btn text-rose-500 border border-slate-500 py-1 px-3 rounded shadow-md hover:border-rose-500 hover:text-rose-50 duration-0 cursor-pointer"
         >
           Delete
         </div>
+      </div>
+
+      {/* Overlay  */}
+      <div
+        onClick={handleOverlay}
+        className={`overlay fixed top-0 left-0 right-0 bottom-0 z-[1] bg-slate-900/5 backdrop-blur-sm ${
+          isOverlayOpen ? "" : "hidden"
+        }`}
+      ></div>
+      {/* Modal  */}
+      <div
+        className={`modal z-[2] fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 p-10 w-[30rem] border border-slate-700 shadow-xl rounded-lg ${
+          isModalOpen ? "" : "hidden"
+        }`}
+      >
+        <ProjectForm
+          project={project}
+          setIsModalOpen={setIsModalOpen}
+          setIsOverlayOpen={setIsOverlayOpen}
+        />
       </div>
     </div>
   );
